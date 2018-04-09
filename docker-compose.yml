@@ -1,0 +1,209 @@
+version: "3"
+
+services:
+
+  iconator-core:
+    restart: always
+    image: iconator/core:latest
+    container_name: iconator-core
+    hostname: iconator-core
+    networks:
+      - iconator-network
+    ports:
+      - "8081:8081"
+    depends_on:
+      - rabbitmq-service
+      - postgres-service
+      - logstash-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JPA_HIBERNATE_DDL_AUTO=create-drop
+      - JPA_GENERATE_DDL_ENABLED=true
+      - DATASOURCE_URL=jdbc:postgresql://postgres-service/testuser
+      - DATASOURCE_USERNAME=testuser
+      - DATASOURCE_PASSWORD=testpass
+      - ICONATOR_BACKEND_URL=http://localhost:8081
+      - ICONATOR_FRONTEND_URL=http://localhost:8080
+      - ICONATOR_FRONTEND_WALLET_PATH=/confirm/
+      - ICONATOR_CORE_KEYPAIRS_GEN_OUTPUT_FILE=/ICOnator/keypairs.keys
+      - ICONATOR_CORE_KEYPAIRS_GEN_AMOUNT=30
+      - ICONATOR_CORS_URLS=*
+      - LOGSTASH_ADDRESS=logstash:5000
+      - AMQP_URL=amqp://guest:guest@rabbitmq-service/vhost1?exchangeName=iconator_entry_exchange&exchangeType=topic&durable=true&autoDelete=false
+      - BITCOIN_NETWORK=testnet
+
+  iconator-monitor:
+    restart: always
+    image: iconator/monitor:latest
+    container_name: iconator-monitor
+    hostname: iconator-monitor
+    networks:
+      - iconator-network
+    depends_on:
+      - iconator-core
+      - rabbitmq-service
+      - logstash-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JPA_HIBERNATE_DDL_AUTO=none
+      - JPA_GENERATE_DDL_ENABLED=false
+      - DATASOURCE_URL=jdbc:postgresql://postgres-service/testuser
+      - DATASOURCE_USERNAME=testuser
+      - DATASOURCE_PASSWORD=testpass
+      - MONITOR_BITCOIN_NODE_ENABLED=true
+      - MONITOR_ETHEREUM_NODE_ENABLED=true
+      - MONITOR_ETHEREUM_NODE_START_BLOCK=2054178
+      - MONITOR_ETHEREUM_NODE_URL=${MONITOR_ETHEREUM_NODE_URL}
+      - LOGSTASH_ADDRESS=logstash-service:5000
+      - AMQP_URL=amqp://guest:guest@rabbitmq-service/vhost1?exchangeName=iconator_entry_exchange&exchangeType=topic&durable=true&autoDelete=false
+      - BITCOIN_NETWORK=testnet
+
+  iconator-rates:
+    restart: always
+    image: iconator/rates:latest
+    container_name: iconator-rates
+    hostname: iconator-rates
+    networks:
+      - iconator-network
+    depends_on:
+      - iconator-core
+      - rabbitmq-service
+      - logstash-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JPA_HIBERNATE_DDL_AUTO=none
+      - JPA_GENERATE_DDL_ENABLED=false
+      - DATASOURCE_URL=jdbc:postgresql://postgres-service/testuser
+      - DATASOURCE_USERNAME=testuser
+      - DATASOURCE_PASSWORD=testpass
+      - RATES_FETCH_PERIODIC_ENABLED=true
+      - RATES_FETCH_PERIODIC_INTERVAL=60000
+      - RATES_RETRY_ATTEMPTS_MAX=3
+      - RATES_RETRY_BETWEEN_ATTEMPTS_MIN=100
+      - RATES_RETRY_BETWEEN_ATTEMPTS_MAX=1000
+      - RATES_ETHERSCAN_TOKEN=token
+      - RATES_ETHERSCAN_URL=http://rinkeby.etherscan.io/api
+      - RATES_USER_AGENT=ICOnator-Rates-Client
+      - RATES_CURRENCIES_FIAT_BASE=USD
+      - RATES_CURRENCIES_CRYPTO_ENABLED=BTC,ETH
+      - RATES_EXCHANGES_ENABLED=KRAKEN,BITFINEX,BITSTAMP,COINMARKETCAP,GDAX
+      - RATES_OUTLIERS_STDDEV_LOWER_BOUND=2
+      - RATES_OUTLIERS_STDDEV_UPPER_BOUND=2
+      - LOGSTASH_ADDRESS=logstash-service:5000
+      - AMQP_URL=amqp://guest:guest@rabbitmq-service/vhost1?exchangeName=iconator_entry_exchange&exchangeType=topic&durable=true&autoDelete=false
+      - BITCOIN_NETWORK=testnet
+
+  iconator-email:
+    restart: always
+    image: iconator/email:latest
+    container_name: iconator-email
+    hostname: iconator-email
+    networks:
+      - iconator-network
+    depends_on:
+      - rabbitmq-service
+      - smtp-service
+      - logstash-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - EMAIL_CONFIRMATION_SUBJECT=ICOnator.io - Demo Token Sale
+      - EMAIL_SUMMARY_SUBJECT=ICOnator.io - Summary of your Demo Investment Details
+      - EMAIL_FUNDS_RECEIVED_SUBJECT=ICOnator.io - Demo Funds Received
+      - EMAIL_TOKEN_SYMBOL=ICONATOR
+      - EMAIL_ENABLED=true
+      - EMAIL_HOST=smtp-service
+      - EMAIL_PROTOCOL=smtp
+      - EMAIL_PORT=25
+      - EMAIL_AUTH_ENABLED=false
+      - EMAIL_START_TLS_ENABLED=false
+      - EMAIL_DEBUG_ENABLED=false
+      - EMAIL_TRUST=*
+      - EMAIL_USERNAME=
+      - EMAIL_PASSWORD=
+      - EMAIL_ADMIN_ADDRESS=info@ICOnator.io
+      - EMAIL_BCC_CONFIRMATION_ENABLED=false
+      - EMAIL_BCC_SUMMARY_ENABLED=false
+      - EMAIL_SEND_FROM_ADDRESS=${EMAIL_SEND_FROM_ADDRESS}
+      - LOGSTASH_ADDRESS=logstash-service:5000
+      - AMQP_URL=amqp://guest:guest@rabbitmq-service/vhost1?exchangeName=iconator_entry_exchange&exchangeType=topic&durable=true&autoDelete=false
+      - BITCOIN_NETWORK=testnet
+
+  rabbitmq-service:
+    restart: always
+    image: rabbitmq:3-management
+    container_name: rabbitmq-service
+    hostname: rabbitmq-service
+    networks:
+      - iconator-network
+    environment:
+      - RABBITMQ_DEFAULT_VHOST=vhost1
+
+  smtp-service:
+    restart: always
+    image: namshi/smtp
+    container_name: smtp-service
+    hostname: smtp-service
+    networks:
+      - iconator-network
+    environment:
+      - GMAIL_USER=${GMAIL_USER}
+      - GMAIL_PASSWORD=${GMAIL_PASSWORD}
+
+  postgres-service:
+    restart: always
+    image: postgres
+    container_name: postgres-service
+    hostname: postgres-service
+    networks:
+      - iconator-network
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpass
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  elasticsearch-service:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
+    container_name: elasticsearch-service
+    hostname: elasticsearch-service
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - iconator-network
+
+  kibana-service:
+    image: docker.elastic.co/kibana/kibana-oss:6.2.2
+    container_name: kibana-service
+    hostname: kibana-service
+    volumes:
+      - ./kibana/config/:/usr/share/kibana/config:ro
+    ports:
+      - "5601:5601"
+    networks:
+      - iconator-network
+    depends_on:
+      - elasticsearch-service
+
+  logstash-service:
+    image: docker.elastic.co/logstash/logstash-oss:6.2.2
+    container_name: logstash-service
+    hostname: logstash-service
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - iconator-network
+    depends_on:
+      - elasticsearch-service
+
+networks:
+  iconator-network:
