@@ -30,7 +30,7 @@ services:
       - ICONATOR_CORS_URLS=*
       - ICONATOR_AUTH_ACTUATOR_USER=user
       - ICONATOR_AUTH_ACTUATOR_PASSWORD=password
-      - LOGSTASH_ADDRESS=logstash:5000
+      - LOGSTASH_ADDRESS=logstash-service:5000
       - AMQP_URL=amqp://guest:guest@rabbitmq-service/vhost1?exchangeName=iconator_entry_exchange&exchangeType=topic&durable=true&autoDelete=false
       - BITCOIN_NETWORK=testnet
 
