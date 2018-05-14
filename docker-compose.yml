@@ -60,6 +60,8 @@ services:
       - MONITOR_ETHEREUM_NODE_ENABLED=true
       - MONITOR_ETHEREUM_NODE_START_BLOCK=2054178
       - MONITOR_ETHEREUM_NODE_URL=${MONITOR_ETHEREUM_NODE_URL}
+      - ICONATOR_AUTH_ACTUATOR_USER=user
+      - ICONATOR_AUTH_ACTUATOR_PASSWORD=password
       - LOGSTASH_ADDRESS=logstash-service:5000
       - AMQP_URL=amqp://guest:guest@rabbitmq-service/vhost1?exchangeName=iconator_entry_exchange&exchangeType=topic&durable=true&autoDelete=false
       - BITCOIN_NETWORK=testnet
@@ -95,6 +97,8 @@ services:
       - RATES_EXCHANGES_ENABLED=KRAKEN,BITFINEX,BITSTAMP,COINMARKETCAP,GDAX
       - RATES_OUTLIERS_STDDEV_LOWER_BOUND=2
       - RATES_OUTLIERS_STDDEV_UPPER_BOUND=2
+      - ICONATOR_AUTH_ACTUATOR_USER=user
+      - ICONATOR_AUTH_ACTUATOR_PASSWORD=password
       - LOGSTASH_ADDRESS=logstash-service:5000
       - AMQP_URL=amqp://guest:guest@rabbitmq-service/vhost1?exchangeName=iconator_entry_exchange&exchangeType=topic&durable=true&autoDelete=false
       - BITCOIN_NETWORK=testnet
@@ -130,6 +134,8 @@ services:
       - EMAIL_BCC_CONFIRMATION_ENABLED=false
       - EMAIL_BCC_SUMMARY_ENABLED=false
       - EMAIL_SEND_FROM_ADDRESS=${EMAIL_SEND_FROM_ADDRESS}
+      - ICONATOR_AUTH_ACTUATOR_USER=user
+      - ICONATOR_AUTH_ACTUATOR_PASSWORD=password
       - LOGSTASH_ADDRESS=logstash-service:5000
       - AMQP_URL=amqp://guest:guest@rabbitmq-service/vhost1?exchangeName=iconator_entry_exchange&exchangeType=topic&durable=true&autoDelete=false
       - BITCOIN_NETWORK=testnet
