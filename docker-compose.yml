@@ -140,6 +140,30 @@ services:
       - AMQP_URL=amqp://guest:guest@rabbitmq-service/vhost1?exchangeName=iconator_entry_exchange&exchangeType=topic&durable=true&autoDelete=false
       - BITCOIN_NETWORK=testnet
 
+  iconator-kyc:
+    restart: always
+    image: iconator/kyc:latest
+    container_name: iconator-kyc
+    hostname: iconator-kyc
+    networks:
+      - iconator-network
+    depends_on:
+      - rabbitmq-service
+      - smtp-service
+      - logstash-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JPA_HIBERNATE_DDL_AUTO=none
+      - JPA_GENERATE_DDL_ENABLED=false
+      - DATASOURCE_URL=jdbc:postgresql://postgres-service/testuser
+      - DATASOURCE_USERNAME=testuser
+      - DATASOURCE_PASSWORD=testpass
+      - ICONATOR_AUTH_ACTUATOR_USER=user
+      - ICONATOR_AUTH_ACTUATOR_PASSWORD=password
+      - LOGSTASH_ADDRESS=logstash-service:5000
+      - AMQP_URL=amqp://guest:guest@rabbitmq-service/vhost1?exchangeName=iconator_entry_exchange&exchangeType=topic&durable=true&autoDelete=false
+      - BITCOIN_NETWORK=testnet
+
   rabbitmq-service:
     restart: always
     image: rabbitmq:3-management
