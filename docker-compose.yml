@@ -148,7 +148,6 @@ services:
       - iconator-network
     depends_on:
       - rabbitmq-service
-      - smtp-service
       - logstash-service
     environment:
       - SPRING_PROFILES_ACTIVE=dev
