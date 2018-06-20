@@ -112,7 +112,6 @@ services:
       - iconator-network
     depends_on:
       - rabbitmq-service
-      - smtp-service
       - logstash-service
     environment:
       - SPRING_PROFILES_ACTIVE=dev
@@ -121,15 +120,15 @@ services:
       - EMAIL_FUNDS_RECEIVED_SUBJECT=ICOnator.io - Demo Funds Received
       - EMAIL_TOKEN_SYMBOL=ICONATOR
       - EMAIL_ENABLED=true
-      - EMAIL_HOST=smtp-service
+      - EMAIL_HOST=smtp.gmail.com
       - EMAIL_PROTOCOL=smtp
-      - EMAIL_PORT=25
-      - EMAIL_AUTH_ENABLED=false
-      - EMAIL_START_TLS_ENABLED=false
+      - EMAIL_PORT=587
+      - EMAIL_AUTH_ENABLED=true
+      - EMAIL_START_TLS_ENABLED=true
       - EMAIL_DEBUG_ENABLED=false
       - EMAIL_TRUST=*
-      - EMAIL_USERNAME=
-      - EMAIL_PASSWORD=
+      - EMAIL_USERNAME=${GMAIL_USER}
+      - EMAIL_PASSWORD=${GMAIL_PASSWORD}
       - EMAIL_ADMIN_ADDRESS=info@ICOnator.io
       - EMAIL_BCC_CONFIRMATION_ENABLED=false
       - EMAIL_BCC_SUMMARY_ENABLED=false
@@ -173,17 +172,6 @@ services:
       - iconator-network
     environment:
       - RABBITMQ_DEFAULT_VHOST=vhost1
-
-  smtp-service:
-    restart: always
-    image: namshi/smtp
-    container_name: smtp-service
-    hostname: smtp-service
-    networks:
-      - iconator-network
-    environment:
-      - GMAIL_USER=${GMAIL_USER}
-      - GMAIL_PASSWORD=${GMAIL_PASSWORD}
 
   postgres-service:
     restart: always
