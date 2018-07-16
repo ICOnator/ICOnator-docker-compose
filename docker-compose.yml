@@ -97,6 +97,7 @@ services:
       - RATES_EXCHANGES_ENABLED=KRAKEN,BITFINEX,BITSTAMP,COINMARKETCAP,GDAX
       - RATES_OUTLIERS_STDDEV_LOWER_BOUND=2
       - RATES_OUTLIERS_STDDEV_UPPER_BOUND=2
+      - ICONATOR_CORS_URLS=*
       - ICONATOR_AUTH_ACTUATOR_USER=user
       - ICONATOR_AUTH_ACTUATOR_PASSWORD=password
       - LOGSTASH_ADDRESS=logstash-service:5000
@@ -115,6 +116,12 @@ services:
       - logstash-service
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+      #- EMAIL_LOGO_URL=https://iconator.io/images/logo/iconator.png
+      #- EMAIL_LOGO_CONTENT_TYPE=image/png
+      #- EMAIL_LOGO_HEIGHT=160
+      #- EMAIL_LOGO_WIDTH=360
+      #- EMAIL_FOOTER_ENTITY_NAME=ICOnator Project
+      #- EMAIL_FOOTER_YEAR=2017
       - EMAIL_CONFIRMATION_SUBJECT=ICOnator.io - Demo Token Sale
       - EMAIL_SUMMARY_SUBJECT=ICOnator.io - Summary of your Demo Investment Details
       - EMAIL_FUNDS_RECEIVED_SUBJECT=ICOnator.io - Demo Funds Received
