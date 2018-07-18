@@ -153,7 +153,10 @@ services:
     hostname: iconator-kyc
     networks:
       - iconator-network
+    ports:
+      - "8085:8085"
     depends_on:
+      - iconator-core
       - rabbitmq-service
       - logstash-service
     environment:
@@ -163,6 +166,9 @@ services:
       - DATASOURCE_URL=jdbc:postgresql://postgres-service/testuser
       - DATASOURCE_USERNAME=testuser
       - DATASOURCE_PASSWORD=testpass
+      - ICONATOR_KYC_HOST=https://gateway.test.idnow.de
+      - ICONATOR_KYC_COMPANY_ID=testId
+      - ICONATOR_KYC_API_KEY=testKey
       - ICONATOR_AUTH_ACTUATOR_USER=user
       - ICONATOR_AUTH_ACTUATOR_PASSWORD=password
       - LOGSTASH_ADDRESS=logstash-service:5000
