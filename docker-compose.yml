@@ -166,6 +166,9 @@ services:
       - DATASOURCE_URL=jdbc:postgresql://postgres-service/testuser
       - DATASOURCE_USERNAME=testuser
       - DATASOURCE_PASSWORD=testpass
+      - KYC_CLIENT_RETRY_ATTEMPTS_MAX=3
+      - KYC_CLIENT_RETRY_BETWEEN_ATTEMPTS_MIN=100
+      - KYC_CLIENT_RETRY_BETWEEN_ATTEMPTS_MAX=1000
       - ICONATOR_KYC_HOST=https://gateway.test.idnow.de
       - ICONATOR_KYC_COMPANY_ID=testId
       - ICONATOR_KYC_API_KEY=testKey
